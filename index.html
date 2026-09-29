@@ -1,0 +1,2721 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    >
+
+    <meta name="theme-color" content="#23365d">
+
+    <title>Dashboard rekonstrukce</title>
+
+    <style>
+        :root {
+            --background: #f3f5f9;
+            --surface: #ffffff;
+            --surface-secondary: #f8fafc;
+            --text: #172033;
+            --muted: #6b7280;
+            --border: #e2e7ef;
+
+            --primary: #315bce;
+            --primary-hover: #274bad;
+            --primary-light: #edf2ff;
+
+            --purchase: #166c59;
+            --purchase-light: #eaf7f2;
+
+            --parking: #a75b10;
+            --parking-light: #fff4e7;
+
+            --danger: #c53e48;
+            --danger-light: #fff0f1;
+
+            --shadow:
+                0 12px 35px rgba(22, 32, 52, 0.09);
+
+            --small-shadow:
+                0 5px 18px rgba(22, 32, 52, 0.07);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Arial,
+                sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(
+                    circle at top left,
+                    rgba(91, 130, 228, 0.15),
+                    transparent 28rem
+                ),
+                radial-gradient(
+                    circle at top right,
+                    rgba(35, 151, 119, 0.12),
+                    transparent 28rem
+                ),
+                var(--background);
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ==============================================================
+           HLAVIČKA
+           ============================================================== */
+
+        .app-header {
+            padding:
+                calc(18px + env(safe-area-inset-top))
+                24px
+                18px;
+            color: white;
+            background:
+                linear-gradient(
+                    135deg,
+                    #17243f,
+                    #28477f
+                );
+            box-shadow:
+                0 5px 22px rgba(17, 31, 57, 0.22);
+        }
+
+        .header-content {
+            width: min(1450px, 100%);
+            margin: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-icon {
+            width: 50px;
+            height: 50px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border-radius: 16px;
+            font-size: 25px;
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.2),
+                    rgba(255, 255, 255, 0.08)
+                );
+            border: 1px solid rgba(255, 255, 255, 0.16);
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 23px;
+            line-height: 1.2;
+        }
+
+        .brand p {
+            margin: 5px 0 0;
+            color: #d9e2f2;
+            font-size: 13px;
+        }
+
+        .header-button {
+            min-height: 42px;
+            padding: 10px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 11px;
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .header-button:hover {
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        /* ==============================================================
+           HLAVNÍ OBSAH
+           ============================================================== */
+
+        .app-container {
+            width: min(1450px, calc(100% - 36px));
+            margin: 26px auto 45px;
+        }
+
+        /* ==============================================================
+           SOUHRNNÉ KARTY
+           ============================================================== */
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .summary-card {
+            position: relative;
+            overflow: hidden;
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: var(--surface);
+            box-shadow: var(--small-shadow);
+        }
+
+        .summary-card::after {
+            content: "";
+            position: absolute;
+            right: -28px;
+            bottom: -38px;
+            width: 115px;
+            height: 115px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.055;
+        }
+
+        .summary-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 13px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .summary-value {
+            margin: 0;
+            font-size: clamp(22px, 2.1vw, 31px);
+            line-height: 1.15;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .summary-description {
+            margin: 7px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .summary-total {
+            color: var(--primary);
+        }
+
+        .summary-purchases {
+            color: var(--purchase);
+        }
+
+        .summary-parking {
+            color: var(--parking);
+        }
+
+        .summary-count {
+            color: #7750b9;
+        }
+
+        /* ==============================================================
+           HLAVNÍ PANEL A FORMULÁŘ
+           ============================================================== */
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 390px minmax(0, 1fr);
+            gap: 22px;
+            align-items: start;
+        }
+
+        .panel {
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 21px;
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .form-panel {
+            position: sticky;
+            top: 20px;
+        }
+
+        .panel-header {
+            padding: 21px 23px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-panel .panel-header {
+            color: white;
+            border-bottom: none;
+            background:
+                linear-gradient(
+                    135deg,
+                    #294eaf,
+                    #4370da
+                );
+        }
+
+        .panel-header h2 {
+            margin: 0;
+            font-size: 19px;
+        }
+
+        .panel-header p {
+            margin: 6px 0 0;
+            font-size: 13px;
+            opacity: 0.82;
+            line-height: 1.45;
+        }
+
+        .panel-body {
+            padding: 22px;
+        }
+
+        .expense-type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 9px;
+            margin-bottom: 20px;
+            padding: 5px;
+            border-radius: 13px;
+            background: #eef1f6;
+        }
+
+        .type-button {
+            min-height: 44px;
+            padding: 10px 8px;
+            border: none;
+            border-radius: 10px;
+            color: #4b5563;
+            background: transparent;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .type-button.active-purchase {
+            color: white;
+            background: var(--purchase);
+            box-shadow:
+                0 4px 12px rgba(22, 108, 89, 0.22);
+        }
+
+        .type-button.active-parking {
+            color: white;
+            background: var(--parking);
+            box-shadow:
+                0 4px 12px rgba(167, 91, 16, 0.22);
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: grid;
+            gap: 7px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #394256;
+        }
+
+        .required {
+            color: var(--danger);
+        }
+
+        .form-control {
+            width: 100%;
+            min-height: 45px;
+            padding: 10px 12px;
+            border: 1px solid #d8dee8;
+            border-radius: 11px;
+            color: var(--text);
+            background: white;
+            outline: none;
+            transition: 0.18s ease;
+        }
+
+        textarea.form-control {
+            min-height: 82px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .form-control:focus {
+            border-color: #7397ed;
+            box-shadow:
+                0 0 0 3px rgba(49, 91, 206, 0.12);
+        }
+
+        .amount-wrapper {
+            position: relative;
+        }
+
+        .amount-wrapper .form-control {
+            padding-right: 48px;
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .currency {
+            position: absolute;
+            top: 50%;
+            right: 13px;
+            color: var(--muted);
+            transform: translateY(-50%);
+            pointer-events: none;
+            font-weight: 700;
+        }
+
+        .form-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 9px;
+            margin-top: 5px;
+        }
+
+        .primary-button,
+        .secondary-button,
+        .danger-button {
+            min-height: 46px;
+            padding: 11px 15px;
+            border: none;
+            border-radius: 11px;
+            font-weight: 750;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .primary-button {
+            color: white;
+            background: var(--primary);
+        }
+
+        .primary-button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .secondary-button {
+            color: #3e485c;
+            border: 1px solid #dbe0e8;
+            background: white;
+        }
+
+        .secondary-button:hover {
+            background: #f5f7fa;
+        }
+
+        .danger-button {
+            color: var(--danger);
+            border: 1px solid #efc7ca;
+            background: var(--danger-light);
+        }
+
+        .danger-button:hover {
+            color: white;
+            background: var(--danger);
+        }
+
+        .editing-message {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 11px 13px;
+            border-radius: 11px;
+            color: #24438f;
+            background: var(--primary-light);
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .editing-message.visible {
+            display: flex;
+        }
+
+        /* ==============================================================
+           PŘEHLED VÝDAJŮ
+           ============================================================== */
+
+        .content-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .tab-navigation {
+            display: flex;
+            gap: 5px;
+            padding: 6px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface-secondary);
+            overflow-x: auto;
+        }
+
+        .tab-button {
+            flex: 1;
+            min-width: 115px;
+            min-height: 43px;
+            padding: 10px 13px;
+            border: none;
+            border-radius: 10px;
+            color: #5d6678;
+            background: transparent;
+            font-weight: 700;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .tab-button.active {
+            color: var(--primary);
+            background: white;
+            box-shadow:
+                0 3px 12px rgba(31, 45, 75, 0.08);
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns:
+                minmax(180px, 1fr)
+                minmax(150px, 0.55fr)
+                minmax(145px, 0.45fr);
+            gap: 10px;
+            padding: 17px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .filter-control {
+            width: 100%;
+            min-height: 42px;
+            padding: 9px 11px;
+            border: 1px solid #dce1e9;
+            border-radius: 10px;
+            color: var(--text);
+            background: white;
+            outline: none;
+        }
+
+        .filter-control:focus {
+            border-color: #7898e3;
+        }
+
+        .category-overview {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            padding: 17px 20px;
+            border-bottom: 1px solid var(--border);
+            background: #fcfcfd;
+        }
+
+        .category-card {
+            padding: 12px 13px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: white;
+        }
+
+        .category-name {
+            margin-bottom: 5px;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .category-amount {
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        /* ==============================================================
+           TABULKA
+           ============================================================== */
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            color: #606a7d;
+            background: #f8f9fb;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.35px;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        tbody tr {
+            transition: background 0.17s ease;
+        }
+
+        tbody tr:hover {
+            background: #fafbfe;
+        }
+
+        .date-cell {
+            white-space: nowrap;
+            color: #50596b;
+        }
+
+        .description-cell {
+            min-width: 180px;
+            font-weight: 600;
+        }
+
+        .amount-cell {
+            white-space: nowrap;
+            text-align: right;
+            font-weight: 800;
+        }
+
+        th.amount-heading {
+            text-align: right;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 6px 9px;
+            border-radius: 8px;
+            color: #3f4a5e;
+            background: #eef1f6;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 6px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 750;
+            white-space: nowrap;
+        }
+
+        .type-purchase {
+            color: var(--purchase);
+            background: var(--purchase-light);
+        }
+
+        .type-parking {
+            color: var(--parking);
+            background: var(--parking-light);
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .icon-button {
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            color: #4c5669;
+            background: white;
+            cursor: pointer;
+            transition: 0.18s ease;
+        }
+
+        .icon-button:hover {
+            color: var(--primary);
+            border-color: #bfcdf0;
+            background: var(--primary-light);
+        }
+
+        .icon-button.delete:hover {
+            color: var(--danger);
+            border-color: #edbabc;
+            background: var(--danger-light);
+        }
+
+        .empty-state {
+            padding: 55px 20px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .empty-icon {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 42px;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 7px;
+            color: #394256;
+            font-size: 17px;
+        }
+
+        .empty-state p {
+            max-width: 450px;
+            margin: 0 auto;
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        .table-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 16px 20px;
+            background: #f8fafc;
+        }
+
+        .table-footer-label {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .table-footer-sum {
+            font-size: 18px;
+            font-weight: 850;
+        }
+
+        /* ==============================================================
+           DATOVÉ NÁSTROJE
+           ============================================================== */
+
+        .data-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-top: 19px;
+            padding: 18px;
+            border: 1px solid var(--border);
+            border-radius: 17px;
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        .tool-button {
+            min-height: 40px;
+            padding: 9px 13px;
+            border: 1px solid #d9dfe8;
+            border-radius: 10px;
+            color: #424c60;
+            background: white;
+            font-weight: 650;
+            cursor: pointer;
+        }
+
+        .tool-button:hover {
+            border-color: #aebfe8;
+            background: var(--primary-light);
+        }
+
+        .tool-button.delete-all {
+            margin-left: auto;
+            color: var(--danger);
+        }
+
+        /* ==============================================================
+           OZNÁMENÍ
+           ============================================================== */
+
+        .toast {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 1000;
+            max-width: min(390px, calc(100% - 40px));
+            padding: 14px 17px;
+            border-radius: 12px;
+            color: white;
+            background: #1f2937;
+            box-shadow:
+                0 12px 35px rgba(0, 0, 0, 0.22);
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            transition: 0.25s ease;
+        }
+
+        .toast.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success {
+            background: #11624d;
+        }
+
+        .toast.error {
+            background: #a92f39;
+        }
+
+        /* ==============================================================
+           MOBILNÍ ZOBRAZENÍ
+           ============================================================== */
+
+        @media (max-width: 1100px) {
+            .summary-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .main-layout {
+                grid-template-columns: 340px minmax(0, 1fr);
+            }
+
+            .filters {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .filters > :first-child {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 850px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .form-panel {
+                position: static;
+            }
+
+            .header-button {
+                display: none;
+            }
+        }
+
+        @media (max-width: 620px) {
+            .app-header {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .brand-icon {
+                width: 44px;
+                height: 44px;
+                border-radius: 13px;
+            }
+
+            .brand h1 {
+                font-size: 18px;
+            }
+
+            .brand p {
+                display: none;
+            }
+
+            .app-container {
+                width: min(100% - 20px, 1450px);
+                margin-top: 14px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 9px;
+                margin-bottom: 14px;
+            }
+
+            .summary-card {
+                min-height: 125px;
+                padding: 15px;
+                border-radius: 15px;
+            }
+
+            .summary-label {
+                align-items: flex-start;
+                font-size: 11px;
+            }
+
+            .summary-value {
+                font-size: 20px;
+            }
+
+            .summary-description {
+                font-size: 11px;
+            }
+
+            .main-layout {
+                gap: 14px;
+            }
+
+            .panel {
+                border-radius: 17px;
+            }
+
+            .panel-header,
+            .panel-body {
+                padding: 17px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+                padding: 14px;
+            }
+
+            .filters > :first-child {
+                grid-column: auto;
+            }
+
+            .category-overview {
+                display: flex;
+                overflow-x: auto;
+                padding: 14px;
+            }
+
+            .category-card {
+                min-width: 145px;
+            }
+
+            .desktop-table {
+                display: none;
+            }
+
+            .mobile-expense-list {
+                display: grid !important;
+                gap: 10px;
+                padding: 13px;
+            }
+
+            .mobile-expense-card {
+                padding: 15px;
+                border: 1px solid var(--border);
+                border-radius: 14px;
+                background: white;
+            }
+
+            .mobile-card-top {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 12px;
+            }
+
+            .mobile-description {
+                margin: 8px 0 0;
+                font-size: 15px;
+                font-weight: 750;
+            }
+
+            .mobile-date {
+                margin-top: 5px;
+                color: var(--muted);
+                font-size: 12px;
+            }
+
+            .mobile-amount {
+                flex-shrink: 0;
+                font-size: 17px;
+                font-weight: 850;
+                white-space: nowrap;
+            }
+
+            .mobile-actions {
+                display: flex;
+                gap: 7px;
+                margin-top: 13px;
+            }
+
+            .mobile-actions .icon-button {
+                width: auto;
+                flex: 1;
+                padding: 0 12px;
+                font-size: 12px;
+                font-weight: 700;
+            }
+
+            .table-footer {
+                padding: 14px;
+            }
+
+            .data-tools {
+                padding: 13px;
+            }
+
+            .tool-button {
+                flex: 1 1 calc(50% - 5px);
+            }
+
+            .tool-button.delete-all {
+                margin-left: 0;
+            }
+        }
+
+        @media (min-width: 621px) {
+            .mobile-expense-list {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="app-header">
+    <div class="header-content">
+        <div class="brand">
+            <div class="brand-icon">🏠</div>
+
+            <div>
+                <h1>Dashboard rekonstrukce</h1>
+                <p>Výdaje za rekonstrukci, nákupy a parkování</p>
+            </div>
+        </div>
+
+        <button
+            class="header-button"
+            type="button"
+            onclick="scrollToExpenseForm()"
+        >
+            ＋ Přidat nový výdaj
+        </button>
+    </div>
+</header>
+
+<main class="app-container">
+
+    <!-- ==========================================================
+         SOUHRNNÉ KARTY
+         ========================================================== -->
+
+    <section class="summary-grid">
+        <article class="summary-card summary-total">
+            <div class="summary-label">
+                <span>💰</span>
+                <span>Celkové výdaje</span>
+            </div>
+
+            <p
+                id="totalAmount"
+                class="summary-value"
+            >
+                0 Kč
+            </p>
+
+            <p class="summary-description">
+                Nákupy i parkování dohromady
+            </p>
+        </article>
+
+        <article class="summary-card summary-purchases">
+            <div class="summary-label">
+                <span>🛒</span>
+                <span>Nákupy a rekonstrukce</span>
+            </div>
+
+            <p
+                id="purchaseAmount"
+                class="summary-value"
+            >
+                0 Kč
+            </p>
+
+            <p class="summary-description">
+                Materiály, nábytek a práce
+            </p>
+        </article>
+
+        <article class="summary-card summary-parking">
+            <div class="summary-label">
+                <span>🚗</span>
+                <span>Parkování a doprava</span>
+            </div>
+
+            <p
+                id="parkingAmount"
+                class="summary-value"
+            >
+                0 Kč
+            </p>
+
+            <p class="summary-description">
+                Parkování, benzín a doprava
+            </p>
+        </article>
+
+        <article class="summary-card summary-count">
+            <div class="summary-label">
+                <span>📋</span>
+                <span>Počet položek</span>
+            </div>
+
+            <p
+                id="expenseCount"
+                class="summary-value"
+            >
+                0
+            </p>
+
+            <p class="summary-description">
+                Všechny uložené záznamy
+            </p>
+        </article>
+    </section>
+
+    <section class="main-layout">
+
+        <!-- ======================================================
+             FORMULÁŘ
+             ====================================================== -->
+
+        <aside
+            id="expenseFormPanel"
+            class="panel form-panel"
+        >
+            <div class="panel-header">
+                <h2 id="formTitle">Přidat nový výdaj</h2>
+
+                <p>
+                    Zapiš částku, kategorii a krátký popis.
+                </p>
+            </div>
+
+            <div class="panel-body">
+                <div
+                    id="editingMessage"
+                    class="editing-message"
+                >
+                    <span>✏️ Upravuješ uloženou položku</span>
+
+                    <button
+                        class="secondary-button"
+                        type="button"
+                        onclick="cancelEdit()"
+                    >
+                        Zrušit
+                    </button>
+                </div>
+
+                <div class="expense-type-selector">
+                    <button
+                        id="purchaseTypeButton"
+                        class="type-button active-purchase"
+                        type="button"
+                        onclick="setExpenseType('purchase')"
+                    >
+                        🛒 Nákup
+                    </button>
+
+                    <button
+                        id="parkingTypeButton"
+                        class="type-button"
+                        type="button"
+                        onclick="setExpenseType('parking')"
+                    >
+                        🚗 Parkování
+                    </button>
+                </div>
+
+                <form
+                    id="expenseForm"
+                    class="form-grid"
+                >
+                    <input
+                        id="expenseId"
+                        type="hidden"
+                    >
+
+                    <input
+                        id="expenseType"
+                        type="hidden"
+                        value="purchase"
+                    >
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label
+                                class="form-label"
+                                for="expenseDate"
+                            >
+                                Datum
+                                <span class="required">*</span>
+                            </label>
+
+                            <input
+                                id="expenseDate"
+                                class="form-control"
+                                type="date"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label
+                                class="form-label"
+                                for="expenseAmount"
+                            >
+                                Částka
+                                <span class="required">*</span>
+                            </label>
+
+                            <div class="amount-wrapper">
+                                <input
+                                    id="expenseAmount"
+                                    class="form-control"
+                                    type="number"
+                                    min="0.01"
+                                    step="0.01"
+                                    inputmode="decimal"
+                                    placeholder="Např. 1700"
+                                    required
+                                >
+
+                                <span class="currency">Kč</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label
+                            class="form-label"
+                            for="expenseCategory"
+                        >
+                            Kategorie
+                            <span class="required">*</span>
+                        </label>
+
+                        <select
+                            id="expenseCategory"
+                            class="form-control"
+                            required
+                        ></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label
+                            class="form-label"
+                            for="expenseDescription"
+                        >
+                            Popis
+                        </label>
+
+                        <textarea
+                            id="expenseDescription"
+                            class="form-control"
+                            maxlength="250"
+                            placeholder="Např. barva na stěny, podlahy nebo parkování u Hornbachu"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button
+                            id="saveExpenseButton"
+                            class="primary-button"
+                            type="submit"
+                        >
+                            ＋ Přidat výdaj
+                        </button>
+
+                        <button
+                            id="cancelEditButton"
+                            class="secondary-button hidden"
+                            type="button"
+                            onclick="cancelEdit()"
+                        >
+                            Zrušit úpravu
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </aside>
+
+        <!-- ======================================================
+             SEZNAM VÝDAJŮ
+             ====================================================== -->
+
+        <section class="panel">
+            <div class="panel-header">
+                <div class="content-header">
+                    <div>
+                        <h2>Přehled výdajů</h2>
+
+                        <p>
+                            Filtruj, upravuj nebo maž jednotlivé položky.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="tab-navigation">
+                <button
+                    id="allTab"
+                    class="tab-button active"
+                    type="button"
+                    onclick="setActiveTab('all')"
+                >
+                    Všechny
+                </button>
+
+                <button
+                    id="purchaseTab"
+                    class="tab-button"
+                    type="button"
+                    onclick="setActiveTab('purchase')"
+                >
+                    🛒 Nákupy
+                </button>
+
+                <button
+                    id="parkingTab"
+                    class="tab-button"
+                    type="button"
+                    onclick="setActiveTab('parking')"
+                >
+                    🚗 Parkování
+                </button>
+            </nav>
+
+            <div class="filters">
+                <input
+                    id="searchFilter"
+                    class="filter-control"
+                    type="search"
+                    placeholder="Hledat v popisu nebo kategorii..."
+                    oninput="renderApp()"
+                >
+
+                <select
+                    id="categoryFilter"
+                    class="filter-control"
+                    onchange="renderApp()"
+                >
+                    <option value="all">
+                        Všechny kategorie
+                    </option>
+                </select>
+
+                <select
+                    id="sortFilter"
+                    class="filter-control"
+                    onchange="renderApp()"
+                >
+                    <option value="date-desc">
+                        Nejnovější
+                    </option>
+
+                    <option value="date-asc">
+                        Nejstarší
+                    </option>
+
+                    <option value="amount-desc">
+                        Nejvyšší částka
+                    </option>
+
+                    <option value="amount-asc">
+                        Nejnižší částka
+                    </option>
+                </select>
+            </div>
+
+            <div
+                id="categoryOverview"
+                class="category-overview"
+            ></div>
+
+            <!-- Tabulka pro počítač -->
+
+            <div
+                id="desktopTable"
+                class="table-container desktop-table"
+            >
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Datum</th>
+                            <th>Typ</th>
+                            <th>Kategorie</th>
+                            <th>Popis</th>
+
+                            <th class="amount-heading">
+                                Částka
+                            </th>
+
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="expenseTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Karty pro mobil -->
+
+            <div
+                id="mobileExpenseList"
+                class="mobile-expense-list"
+            ></div>
+
+            <div
+                id="emptyState"
+                class="empty-state hidden"
+            >
+                <span class="empty-icon">🧾</span>
+
+                <h3>Zatím tu nejsou žádné položky</h3>
+
+                <p>
+                    Přidej první výdaj pomocí formuláře.
+                    Pokud používáš filtry, zkus je změnit nebo vymazat.
+                </p>
+            </div>
+
+            <div class="table-footer">
+                <span
+                    id="visibleItemCount"
+                    class="table-footer-label"
+                >
+                    Zobrazeno 0 položek
+                </span>
+
+                <span
+                    id="visibleAmount"
+                    class="table-footer-sum"
+                >
+                    0 Kč
+                </span>
+            </div>
+        </section>
+    </section>
+
+    <!-- ==========================================================
+         EXPORT A ZÁLOHA
+         ========================================================== -->
+
+    <section class="data-tools">
+        <button
+            class="tool-button"
+            type="button"
+            onclick="exportToCsv()"
+        >
+            📄 Export do CSV
+        </button>
+
+        <button
+            class="tool-button"
+            type="button"
+            onclick="exportBackup()"
+        >
+            💾 Záloha dat
+        </button>
+
+        <button
+            class="tool-button"
+            type="button"
+            onclick="openBackupFilePicker()"
+        >
+            📂 Obnovit ze zálohy
+        </button>
+
+        <button
+            class="tool-button delete-all"
+            type="button"
+            onclick="deleteAllExpenses()"
+        >
+            🗑️ Smazat všechna data
+        </button>
+
+        <input
+            id="backupFileInput"
+            class="hidden"
+            type="file"
+            accept=".json,application/json"
+            onchange="importBackup(event)"
+        >
+    </section>
+</main>
+
+<div
+    id="toast"
+    class="toast"
+    role="status"
+    aria-live="polite"
+></div>
+
+<script>
+    /*
+     * ============================================================
+     * NASTAVENÍ A DATOVÝ MODEL
+     * ============================================================
+     */
+
+    const STORAGE_KEY = "renovation_dashboard_expenses_v1";
+
+    const categoryDefinitions = {
+        purchase: [
+            "Materiály",
+            "Nábytek",
+            "Práce",
+            "Spotřebiče",
+            "Nářadí",
+            "Doprava materiálu",
+            "Ostatní"
+        ],
+
+        parking: [
+            "Parkování",
+            "Benzín",
+            "MHD",
+            "Ostatní doprava"
+        ]
+    };
+
+    let expenses = loadExpenses();
+    let activeTab = "all";
+    let toastTimeout;
+
+    /*
+     * ============================================================
+     * INICIALIZACE
+     * ============================================================
+     */
+
+    document.addEventListener("DOMContentLoaded", initializeApp);
+
+    function initializeApp() {
+        setDefaultDate();
+        updateFormCategories();
+        updateCategoryFilter();
+        renderApp();
+
+        document
+            .getElementById("expenseForm")
+            .addEventListener("submit", saveExpense);
+    }
+
+    /*
+     * ============================================================
+     * UKLÁDÁNÍ DAT
+     * ============================================================
+     */
+
+    function loadExpenses() {
+        try {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+
+            if (!savedData) {
+                return [];
+            }
+
+            const parsedData = JSON.parse(savedData);
+
+            if (!Array.isArray(parsedData)) {
+                return [];
+            }
+
+            return parsedData.filter(isValidExpense);
+        } catch (error) {
+            console.error(
+                "Nepodařilo se načíst uložená data:",
+                error
+            );
+
+            return [];
+        }
+    }
+
+    function saveExpensesToStorage() {
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(expenses)
+        );
+    }
+
+    function isValidExpense(item) {
+        return Boolean(
+            item &&
+            typeof item.id === "string" &&
+            ["purchase", "parking"].includes(item.type) &&
+            typeof item.date === "string" &&
+            typeof item.category === "string" &&
+            Number.isFinite(Number(item.amount))
+        );
+    }
+
+    /*
+     * ============================================================
+     * FORMULÁŘ
+     * ============================================================
+     */
+
+    function setExpenseType(type) {
+        if (!["purchase", "parking"].includes(type)) {
+            return;
+        }
+
+        document.getElementById("expenseType").value = type;
+
+        const purchaseButton =
+            document.getElementById("purchaseTypeButton");
+
+        const parkingButton =
+            document.getElementById("parkingTypeButton");
+
+        purchaseButton.className = "type-button";
+        parkingButton.className = "type-button";
+
+        if (type === "purchase") {
+            purchaseButton.classList.add("active-purchase");
+        } else {
+            parkingButton.classList.add("active-parking");
+        }
+
+        updateFormCategories();
+    }
+
+    function updateFormCategories(selectedCategory = "") {
+        const type =
+            document.getElementById("expenseType").value;
+
+        const categorySelect =
+            document.getElementById("expenseCategory");
+
+        const categories =
+            categoryDefinitions[type] || [];
+
+        categorySelect.innerHTML = categories
+            .map(category => {
+                const selected =
+                    category === selectedCategory
+                        ? "selected"
+                        : "";
+
+                return `
+                    <option
+                        value="${escapeHtml(category)}"
+                        ${selected}
+                    >
+                        ${escapeHtml(category)}
+                    </option>
+                `;
+            })
+            .join("");
+    }
+
+    function setDefaultDate() {
+        const dateInput =
+            document.getElementById("expenseDate");
+
+        if (!dateInput.value) {
+            dateInput.value = getLocalDateString();
+        }
+    }
+
+    function getLocalDateString() {
+        const today = new Date();
+        const timezoneOffset =
+            today.getTimezoneOffset() * 60000;
+
+        return new Date(today.getTime() - timezoneOffset)
+            .toISOString()
+            .split("T")[0];
+    }
+
+    function saveExpense(event) {
+        event.preventDefault();
+
+        const id =
+            document.getElementById("expenseId").value;
+
+        const type =
+            document.getElementById("expenseType").value;
+
+        const date =
+            document.getElementById("expenseDate").value;
+
+        const category =
+            document.getElementById("expenseCategory").value;
+
+        const description =
+            document
+                .getElementById("expenseDescription")
+                .value
+                .trim();
+
+        const amount = Number(
+            document.getElementById("expenseAmount").value
+        );
+
+        if (!date) {
+            showToast(
+                "Vyber datum výdaje.",
+                "error"
+            );
+
+            return;
+        }
+
+        if (!category) {
+            showToast(
+                "Vyber kategorii.",
+                "error"
+            );
+
+            return;
+        }
+
+        if (!Number.isFinite(amount) || amount <= 0) {
+            showToast(
+                "Zadej částku vyšší než 0 Kč.",
+                "error"
+            );
+
+            return;
+        }
+
+        if (id) {
+            const expenseIndex =
+                expenses.findIndex(item => item.id === id);
+
+            if (expenseIndex === -1) {
+                showToast(
+                    "Upravovaná položka nebyla nalezena.",
+                    "error"
+                );
+
+                return;
+            }
+
+            expenses[expenseIndex] = {
+                ...expenses[expenseIndex],
+                type,
+                date,
+                category,
+                description,
+                amount,
+                updatedAt: new Date().toISOString()
+            };
+
+            showToast(
+                "Výdaj byl upraven.",
+                "success"
+            );
+        } else {
+            expenses.push({
+                id: createUniqueId(),
+                type,
+                date,
+                category,
+                description,
+                amount,
+                createdAt: new Date().toISOString()
+            });
+
+            showToast(
+                "Výdaj byl přidán.",
+                "success"
+            );
+        }
+
+        saveExpensesToStorage();
+        resetExpenseForm();
+        updateCategoryFilter();
+        renderApp();
+
+        setTimeout(() => {
+            document
+                .getElementById("expenseAmount")
+                .focus();
+        }, 50);
+    }
+
+    function resetExpenseForm() {
+        document.getElementById("expenseForm").reset();
+        document.getElementById("expenseId").value = "";
+        document.getElementById("expenseType").value = "purchase";
+
+        document.getElementById("formTitle").textContent =
+            "Přidat nový výdaj";
+
+        document.getElementById("saveExpenseButton").textContent =
+            "＋ Přidat výdaj";
+
+        document
+            .getElementById("editingMessage")
+            .classList.remove("visible");
+
+        document
+            .getElementById("cancelEditButton")
+            .classList.add("hidden");
+
+        setExpenseType("purchase");
+        setDefaultDate();
+    }
+
+    function editExpense(id) {
+        const expense =
+            expenses.find(item => item.id === id);
+
+        if (!expense) {
+            return;
+        }
+
+        document.getElementById("expenseId").value =
+            expense.id;
+
+        document.getElementById("expenseType").value =
+            expense.type;
+
+        document.getElementById("expenseDate").value =
+            expense.date;
+
+        document.getElementById("expenseAmount").value =
+            expense.amount;
+
+        document.getElementById("expenseDescription").value =
+            expense.description || "";
+
+        setExpenseType(expense.type);
+        updateFormCategories(expense.category);
+
+        document.getElementById("formTitle").textContent =
+            "Upravit výdaj";
+
+        document.getElementById("saveExpenseButton").textContent =
+            "✓ Uložit změny";
+
+        document
+            .getElementById("editingMessage")
+            .classList.add("visible");
+
+        document
+            .getElementById("cancelEditButton")
+            .classList.remove("hidden");
+
+        scrollToExpenseForm();
+    }
+
+    function cancelEdit() {
+        resetExpenseForm();
+        showToast("Úprava byla zrušena.");
+    }
+
+    function scrollToExpenseForm() {
+        document
+            .getElementById("expenseFormPanel")
+            .scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+        setTimeout(() => {
+            document
+                .getElementById("expenseAmount")
+                .focus();
+        }, 500);
+    }
+
+    /*
+     * ============================================================
+     * MAZÁNÍ
+     * ============================================================
+     */
+
+    function deleteExpense(id) {
+        const expense =
+            expenses.find(item => item.id === id);
+
+        if (!expense) {
+            return;
+        }
+
+        const description =
+            expense.description ||
+            expense.category;
+
+        const confirmed = window.confirm(
+            `Opravdu chceš smazat položku „${description}“ ` +
+            `za ${formatCurrency(expense.amount)}?`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        expenses = expenses.filter(item => item.id !== id);
+
+        saveExpensesToStorage();
+        updateCategoryFilter();
+        renderApp();
+
+        showToast(
+            "Položka byla smazána.",
+            "success"
+        );
+    }
+
+    function deleteAllExpenses() {
+        if (expenses.length === 0) {
+            showToast("Nejsou uložena žádná data.");
+            return;
+        }
+
+        const firstConfirmation = window.confirm(
+            "Opravdu chceš smazat všechny uložené výdaje?"
+        );
+
+        if (!firstConfirmation) {
+            return;
+        }
+
+        const secondConfirmation = window.confirm(
+            "Tuto akci nelze vrátit. Máš vytvořenou zálohu?"
+        );
+
+        if (!secondConfirmation) {
+            return;
+        }
+
+        expenses = [];
+
+        saveExpensesToStorage();
+        cancelEdit();
+        updateCategoryFilter();
+        renderApp();
+
+        showToast(
+            "Všechna data byla smazána.",
+            "success"
+        );
+    }
+
+    /*
+     * ============================================================
+     * ZÁLOŽKY A FILTRY
+     * ============================================================
+     */
+
+    function setActiveTab(tab) {
+        activeTab = tab;
+
+        document
+            .querySelectorAll(".tab-button")
+            .forEach(button => {
+                button.classList.remove("active");
+            });
+
+        const tabIds = {
+            all: "allTab",
+            purchase: "purchaseTab",
+            parking: "parkingTab"
+        };
+
+        document
+            .getElementById(tabIds[tab])
+            .classList.add("active");
+
+        updateCategoryFilter();
+        renderApp();
+    }
+
+    function updateCategoryFilter() {
+        const categoryFilter =
+            document.getElementById("categoryFilter");
+
+        const previousValue =
+            categoryFilter.value || "all";
+
+        let categories;
+
+        if (activeTab === "purchase") {
+            categories = categoryDefinitions.purchase;
+        } else if (activeTab === "parking") {
+            categories = categoryDefinitions.parking;
+        } else {
+            categories = [
+                ...categoryDefinitions.purchase,
+                ...categoryDefinitions.parking
+            ];
+        }
+
+        categoryFilter.innerHTML = `
+            <option value="all">
+                Všechny kategorie
+            </option>
+
+            ${categories
+                .map(category => `
+                    <option value="${escapeHtml(category)}">
+                        ${escapeHtml(category)}
+                    </option>
+                `)
+                .join("")}
+        `;
+
+        if (
+            previousValue === "all" ||
+            categories.includes(previousValue)
+        ) {
+            categoryFilter.value = previousValue;
+        }
+    }
+
+    function getFilteredExpenses() {
+        const searchText =
+            document
+                .getElementById("searchFilter")
+                .value
+                .trim()
+                .toLocaleLowerCase("cs");
+
+        const selectedCategory =
+            document.getElementById("categoryFilter").value;
+
+        const selectedSort =
+            document.getElementById("sortFilter").value;
+
+        let filteredExpenses = expenses.filter(expense => {
+            const matchesTab =
+                activeTab === "all" ||
+                expense.type === activeTab;
+
+            const matchesCategory =
+                selectedCategory === "all" ||
+                expense.category === selectedCategory;
+
+            const searchableText = [
+                expense.category,
+                expense.description || "",
+                getTypeLabel(expense.type)
+            ]
+                .join(" ")
+                .toLocaleLowerCase("cs");
+
+            const matchesSearch =
+                searchableText.includes(searchText);
+
+            return (
+                matchesTab &&
+                matchesCategory &&
+                matchesSearch
+            );
+        });
+
+        filteredExpenses.sort((first, second) => {
+            switch (selectedSort) {
+                case "date-asc":
+                    return (
+                        first.date.localeCompare(second.date) ||
+                        getCreationTime(first) -
+                            getCreationTime(second)
+                    );
+
+                case "amount-desc":
+                    return second.amount - first.amount;
+
+                case "amount-asc":
+                    return first.amount - second.amount;
+
+                case "date-desc":
+                default:
+                    return (
+                        second.date.localeCompare(first.date) ||
+                        getCreationTime(second) -
+                            getCreationTime(first)
+                    );
+            }
+        });
+
+        return filteredExpenses;
+    }
+
+    function getCreationTime(expense) {
+        const value =
+            expense.createdAt || `${expense.date}T00:00:00`;
+
+        const time = new Date(value).getTime();
+
+        return Number.isFinite(time) ? time : 0;
+    }
+
+    /*
+     * ============================================================
+     * VYKRESLENÍ APLIKACE
+     * ============================================================
+     */
+
+    function renderApp() {
+        renderSummary();
+        renderExpenseList();
+        renderCategoryOverview();
+    }
+
+    function renderSummary() {
+        const total = sumExpenses(expenses);
+
+        const purchases = sumExpenses(
+            expenses.filter(item => item.type === "purchase")
+        );
+
+        const parking = sumExpenses(
+            expenses.filter(item => item.type === "parking")
+        );
+
+        document.getElementById("totalAmount").textContent =
+            formatCurrency(total);
+
+        document.getElementById("purchaseAmount").textContent =
+            formatCurrency(purchases);
+
+        document.getElementById("parkingAmount").textContent =
+            formatCurrency(parking);
+
+        document.getElementById("expenseCount").textContent =
+            expenses.length.toLocaleString("cs-CZ");
+    }
+
+    function renderExpenseList() {
+        const filteredExpenses = getFilteredExpenses();
+
+        const tableBody =
+            document.getElementById("expenseTableBody");
+
+        const mobileList =
+            document.getElementById("mobileExpenseList");
+
+        const desktopTable =
+            document.getElementById("desktopTable");
+
+        const emptyState =
+            document.getElementById("emptyState");
+
+        const visibleTotal =
+            sumExpenses(filteredExpenses);
+
+        document.getElementById("visibleItemCount").textContent =
+            getItemsLabel(filteredExpenses.length);
+
+        document.getElementById("visibleAmount").textContent =
+            formatCurrency(visibleTotal);
+
+        if (filteredExpenses.length === 0) {
+            tableBody.innerHTML = "";
+            mobileList.innerHTML = "";
+            desktopTable.classList.add("hidden");
+            mobileList.classList.add("hidden");
+            emptyState.classList.remove("hidden");
+
+            return;
+        }
+
+        emptyState.classList.add("hidden");
+        desktopTable.classList.remove("hidden");
+        mobileList.classList.remove("hidden");
+
+        tableBody.innerHTML = filteredExpenses
+            .map(createDesktopExpenseRow)
+            .join("");
+
+        mobileList.innerHTML = filteredExpenses
+            .map(createMobileExpenseCard)
+            .join("");
+    }
+
+    function createDesktopExpenseRow(expense) {
+        const description =
+            expense.description || "Bez popisu";
+
+        return `
+            <tr>
+                <td class="date-cell">
+                    ${escapeHtml(formatDate(expense.date))}
+                </td>
+
+                <td>
+                    <span
+                        class="type-badge
+                        ${
+                            expense.type === "purchase"
+                                ? "type-purchase"
+                                : "type-parking"
+                        }"
+                    >
+                        ${escapeHtml(getTypeLabel(expense.type))}
+                    </span>
+                </td>
+
+                <td>
+                    <span class="category-badge">
+                        ${escapeHtml(expense.category)}
+                    </span>
+                </td>
+
+                <td class="description-cell">
+                    ${escapeHtml(description)}
+                </td>
+
+                <td class="amount-cell">
+                    ${escapeHtml(formatCurrency(expense.amount))}
+                </td>
+
+                <td>
+                    <div class="action-buttons">
+                        <button
+                            class="icon-button"
+                            type="button"
+                            title="Upravit položku"
+                            aria-label="Upravit položku"
+                            onclick="editExpense('${expense.id}')"
+                        >
+                            ✏️
+                        </button>
+
+                        <button
+                            class="icon-button delete"
+                            type="button"
+                            title="Smazat položku"
+                            aria-label="Smazat položku"
+                            onclick="deleteExpense('${expense.id}')"
+                        >
+                            🗑️
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
+    function createMobileExpenseCard(expense) {
+        const description =
+            expense.description || "Bez popisu";
+
+        return `
+            <article class="mobile-expense-card">
+                <div class="mobile-card-top">
+                    <div>
+                        <span
+                            class="type-badge
+                            ${
+                                expense.type === "purchase"
+                                    ? "type-purchase"
+                                    : "type-parking"
+                            }"
+                        >
+                            ${escapeHtml(getTypeLabel(expense.type))}
+                        </span>
+
+                        <span class="category-badge">
+                            ${escapeHtml(expense.category)}
+                        </span>
+
+                        <p class="mobile-description">
+                            ${escapeHtml(description)}
+                        </p>
+
+                        <div class="mobile-date">
+                            ${escapeHtml(formatDate(expense.date))}
+                        </div>
+                    </div>
+
+                    <div class="mobile-amount">
+                        ${escapeHtml(formatCurrency(expense.amount))}
+                    </div>
+                </div>
+
+                <div class="mobile-actions">
+                    <button
+                        class="icon-button"
+                        type="button"
+                        onclick="editExpense('${expense.id}')"
+                    >
+                        ✏️ Upravit
+                    </button>
+
+                    <button
+                        class="icon-button delete"
+                        type="button"
+                        onclick="deleteExpense('${expense.id}')"
+                    >
+                        🗑️ Smazat
+                    </button>
+                </div>
+            </article>
+        `;
+    }
+
+    function renderCategoryOverview() {
+        const categoryOverview =
+            document.getElementById("categoryOverview");
+
+        let relevantExpenses = expenses;
+
+        if (activeTab !== "all") {
+            relevantExpenses = expenses.filter(
+                item => item.type === activeTab
+            );
+        }
+
+        const categoryTotals = {};
+
+        relevantExpenses.forEach(expense => {
+            categoryTotals[expense.category] =
+                (categoryTotals[expense.category] || 0) +
+                Number(expense.amount);
+        });
+
+        const sortedCategories =
+            Object.entries(categoryTotals)
+                .sort((first, second) => second[1] - first[1]);
+
+        if (sortedCategories.length === 0) {
+            categoryOverview.innerHTML = `
+                <div class="category-card">
+                    <div class="category-name">
+                        Přehled kategorií
+                    </div>
+
+                    <div class="category-amount">
+                        Zatím bez dat
+                    </div>
+                </div>
+            `;
+
+            return;
+        }
+
+        categoryOverview.innerHTML = sortedCategories
+            .map(([category, amount]) => `
+                <div class="category-card">
+                    <div class="category-name">
+                        ${escapeHtml(category)}
+                    </div>
+
+                    <div class="category-amount">
+                        ${escapeHtml(formatCurrency(amount))}
+                    </div>
+                </div>
+            `)
+            .join("");
+    }
+
+    /*
+     * ============================================================
+     * EXPORT DO CSV
+     * ============================================================
+     */
+
+    function exportToCsv() {
+        if (expenses.length === 0) {
+            showToast(
+                "Není co exportovat.",
+                "error"
+            );
+
+            return;
+        }
+
+        const csvRows = [
+            [
+                "Datum",
+                "Typ",
+                "Kategorie",
+                "Popis",
+                "Částka"
+            ],
+
+            ...expenses
+                .slice()
+                .sort((first, second) =>
+                    first.date.localeCompare(second.date)
+                )
+                .map(expense => [
+                    expense.date,
+                    getTypeLabel(expense.type),
+                    expense.category,
+                    expense.description || "",
+                    expense.amount
+                ])
+        ];
+
+        const csvContent = csvRows
+            .map(row =>
+                row
+                    .map(value => escapeCsvValue(value))
+                    .join(";")
+            )
+            .join("\n");
+
+        /*
+         * BOM na začátku zajišťuje správnou češtinu v Excelu.
+         */
+
+        const blob = new Blob(
+            ["\uFEFF" + csvContent],
+            {
+                type:
+                    "text/csv;charset=utf-8;"
+            }
+        );
+
+        downloadFile(
+            blob,
+            `rekonstrukce-vydaje-${getLocalDateString()}.csv`
+        );
+
+        showToast(
+            "CSV soubor byl vytvořen.",
+            "success"
+        );
+    }
+
+    function escapeCsvValue(value) {
+        const stringValue = String(value ?? "");
+
+        return `"${stringValue.replaceAll('"', '""')}"`;
+    }
+
+    /*
+     * ============================================================
+     * ZÁLOHA A OBNOVENÍ
+     * ============================================================
+     */
+
+    function exportBackup() {
+        if (expenses.length === 0) {
+            showToast(
+                "Není co zálohovat.",
+                "error"
+            );
+
+            return;
+        }
+
+        const backupData = {
+            version: 1,
+            exportedAt: new Date().toISOString(),
+            expenses
+        };
+
+        const blob = new Blob(
+            [JSON.stringify(backupData, null, 2)],
+            {
+                type: "application/json;charset=utf-8"
+            }
+        );
+
+        downloadFile(
+            blob,
+            `rekonstrukce-zaloha-${getLocalDateString()}.json`
+        );
+
+        showToast(
+            "Záloha byla vytvořena.",
+            "success"
+        );
+    }
+
+    function openBackupFilePicker() {
+        const input =
+            document.getElementById("backupFileInput");
+
+        input.value = "";
+        input.click();
+    }
+
+    function importBackup(event) {
+        const selectedFile =
+            event.target.files?.[0];
+
+        if (!selectedFile) {
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function(loadEvent) {
+            try {
+                const backup =
+                    JSON.parse(loadEvent.target.result);
+
+                const importedExpenses =
+                    Array.isArray(backup)
+                        ? backup
+                        : backup.expenses;
+
+                if (!Array.isArray(importedExpenses)) {
+                    throw new Error(
+                        "Soubor neobsahuje platnou zálohu."
+                    );
+                }
+
+                const validExpenses =
+                    importedExpenses.filter(isValidExpense);
+
+                if (
+                    validExpenses.length !==
+                    importedExpenses.length
+                ) {
+                    throw new Error(
+                        "Některé položky v záloze nejsou platné."
+                    );
+                }
+
+                const shouldReplace = window.confirm(
+                    "Chceš současná data nahradit daty ze zálohy?\n\n" +
+                    "Klikni na OK pro nahrazení všech dat.\n" +
+                    "Klikni na Zrušit pro přidání položek k současným datům."
+                );
+
+                if (shouldReplace) {
+                    expenses = validExpenses;
+                } else {
+                    const existingIds =
+                        new Set(
+                            expenses.map(item => item.id)
+                        );
+
+                    const expensesToAdd =
+                        validExpenses.map(item => {
+                            if (existingIds.has(item.id)) {
+                                return {
+                                    ...item,
+                                    id: createUniqueId()
+                                };
+                            }
+
+                            return item;
+                        });
+
+                    expenses = [
+                        ...expenses,
+                        ...expensesToAdd
+                    ];
+                }
+
+                saveExpensesToStorage();
+                updateCategoryFilter();
+                renderApp();
+
+                showToast(
+                    `Importováno ${validExpenses.length} položek.`,
+                    "success"
+                );
+            } catch (error) {
+                console.error(
+                    "Chyba při importu zálohy:",
+                    error
+                );
+
+                showToast(
+                    "Soubor se nepodařilo importovat. " +
+                    "Zkontroluj, že jde o správnou JSON zálohu.",
+                    "error"
+                );
+            }
+        };
+
+        reader.onerror = function() {
+            showToast(
+                "Soubor se nepodařilo přečíst.",
+                "error"
+            );
+        };
+
+        reader.readAsText(selectedFile, "UTF-8");
+    }
+
+    function downloadFile(blob, fileName) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = fileName;
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        URL.revokeObjectURL(url);
+    }
+
+    /*
+     * ============================================================
+     * POMOCNÉ FUNKCE
+     * ============================================================
+     */
+
+    function createUniqueId() {
+        if (
+            typeof crypto !== "undefined" &&
+            typeof crypto.randomUUID === "function"
+        ) {
+            return crypto.randomUUID();
+        }
+
+        return (
+            Date.now().toString(36) +
+            Math.random().toString(36).slice(2)
+        );
+    }
+
+    function sumExpenses(items) {
+        return items.reduce(
+            (sum, item) =>
+                sum + Number(item.amount || 0),
+            0
+        );
+    }
+
+    function formatCurrency(value) {
+        return new Intl.NumberFormat(
+            "cs-CZ",
+            {
+                style: "currency",
+                currency: "CZK",
+                maximumFractionDigits:
+                    Number(value) % 1 === 0 ? 0 : 2
+            }
+        ).format(Number(value) || 0);
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) {
+            return "";
+        }
+
+        const [year, month, day] =
+            dateString.split("-").map(Number);
+
+        const date =
+            new Date(year, month - 1, day);
+
+        if (Number.isNaN(date.getTime())) {
+            return dateString;
+        }
+
+        return new Intl.DateTimeFormat(
+            "cs-CZ",
+            {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric"
+            }
+        ).format(date);
+    }
+
+    function getTypeLabel(type) {
+        return type === "parking"
+            ? "Parkování"
+            : "Nákup";
+    }
+
+    function getItemsLabel(count) {
+        if (count === 1) {
+            return "Zobrazena 1 položka";
+        }
+
+        if (count >= 2 && count <= 4) {
+            return `Zobrazeny ${count} položky`;
+        }
+
+        return `Zobrazeno ${count} položek`;
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function showToast(message, type = "") {
+        const toast =
+            document.getElementById("toast");
+
+        toast.textContent = message;
+        toast.className = "toast";
+
+        if (type) {
+            toast.classList.add(type);
+        }
+
+        requestAnimationFrame(() => {
+            toast.classList.add("visible");
+        });
+
+        clearTimeout(toastTimeout);
+
+        toastTimeout = setTimeout(() => {
+            toast.classList.remove("visible");
+        }, 3000);
+    }
+</script>
+
+</body>
+</html>
